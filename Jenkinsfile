@@ -1,50 +1,32 @@
 pipeline {
-  agent any
-  stages {
+    agent any
 
-    stage('Stage 1') {
-      steps {
-        script {
-          echo 'This whole pipeline will take ~40sec to finish.'
-        }
-      }
-    }
+    stages {
+        stage ('Compile Stage') {
 
-    stage('Parallel stages') {
-      parallel {
-
-        stage('Sequential nested stages') {
-          stages {
-            stage('Stage 2') {
-              steps {
-                script {
-                  echo 'Stage 2'
-                  sh 'sleep 20'
+            steps {
+                withMaven(maven : 'maven_3_5_0') {
+                    sh 'mvn clean compile'
                 }
-              }
             }
-            stage('Stage 3') {
-              steps {
-                script {
-                  echo 'Stage 3'
-                  sh 'sleep 20'
+        }
+
+        stage ('Testing Stage') {
+
+            steps {
+                withMaven(maven : 'maven_3_5_0') {
+                    sh 'mvn test'
                 }
-              }
             }
-          }
         }
 
-        stage('Stage 4') {
-          steps {
-            script {
-              echo 'Stage 4'
-              sh 'sleep 20'
-            }
-          }
-        }
 
-      }
+        stage ('Deployment Stage') {
+            steps {
+                withMaven(maven : 'maven_3_5_0') {
+                    sh 'mvn deploy'
+                }
+            }
+        }
     }
-
-  }
 }
